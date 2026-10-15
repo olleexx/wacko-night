@@ -1,0 +1,39 @@
+:root{--asphalt:#1b2026;--tar:#12161a;--paint:#eef0f2;--line:#ffcf1f;--brake:#ff4338;--mute:#9aa4ae;--ok:#3ddc84;--r:6px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--asphalt);color:var(--paint);font:16px/1.6 "DM Sans",system-ui,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;line-height:.95;margin:0;font-weight:900;letter-spacing:.01em}
+a{color:var(--line)}:focus-visible{outline:3px solid var(--line);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+header.top b{font:900 1.5rem "Big Shoulders Display",Impact,sans-serif;color:var(--line)}
+header.top nav a{margin-left:18px;color:var(--paint);text-decoration:none}
+.hero{padding:48px 0 64px;border-top:6px dashed var(--line);border-bottom:6px dashed var(--line);margin:8px 0 56px}
+.hero h1{font-size:clamp(4.5rem,18vw,13rem);color:var(--paint)}
+.hero h1 span{display:block;color:var(--line);margin-left:.4em}
+.facts{display:flex;flex-wrap:wrap;gap:12px 40px;margin:28px 0;font-size:1.15rem}
+.facts div{min-width:160px}.facts small{display:block;color:var(--mute);font-size:.85rem}
+.count{display:flex;gap:10px;margin:8px 0 28px}
+.count div{background:var(--tar);border:2px solid var(--paint);border-radius:var(--r);padding:10px 14px;min-width:78px;text-align:center}
+.count b{display:block;font:900 2.4rem "Big Shoulders Display",Impact,sans-serif}.count small{color:var(--mute)}
+.btn{display:inline-block;background:var(--line);color:#111;border:0;border-radius:var(--r);padding:14px 26px;font:800 1.05rem "DM Sans",sans-serif;cursor:pointer;text-decoration:none}
+.btn:disabled{background:#4a525a;color:#99a;cursor:not-allowed}.btn.alt{background:transparent;color:var(--paint);border:2px solid var(--paint)}
+.bay{border:3px solid var(--paint);border-top:0;border-radius:0 0 var(--r) var(--r);padding:28px;margin-bottom:56px;background:var(--tar)}
+.bay h2{font-size:2.6rem;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:640px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:600;margin-bottom:4px}
+input,select{width:100%;padding:12px;border-radius:var(--r);border:2px solid #3a434c;background:var(--asphalt);color:var(--paint);font:inherit}
+input:focus{border-color:var(--line)}.full{grid-column:1/-1}.hint{color:var(--mute);font-size:.9rem}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:3px dashed var(--line);margin-top:20px;padding-top:16px;font-size:1.2rem}
+.total b{font:900 2.4rem "Big Shoulders Display",Impact,sans-serif;color:var(--line)}
+.msg{padding:12px 16px;border-radius:var(--r);margin:16px 0;border-left:6px solid var(--mute);background:#262d35}
+.msg.err{border-color:var(--brake)}.msg.ok{border-color:var(--ok)}.msg.warn{border-color:var(--line)}
+.permit{background:var(--paint);color:#111;border-radius:var(--r);padding:20px;display:grid;grid-template-columns:200px 1fr;gap:20px;margin:16px 0;border-left:14px solid var(--line)}
+.permit img{width:200px;height:200px;background:#fff}.permit h3{font-size:2.4rem}.permit code{font-size:1.1rem;font-weight:700}
+@media(max-width:560px){.permit{grid-template-columns:1fr}.permit img{margin:auto}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stats div{background:var(--tar);border:2px solid #3a434c;border-radius:var(--r);padding:14px}.stats b{font:900 2.2rem "Big Shoulders Display",Impact,sans-serif;display:block}
+.scan-box{max-width:520px;margin:auto}video{width:100%;border-radius:var(--r);background:#000;aspect-ratio:1}
+.result{font:900 3rem "Big Shoulders Display",Impact,sans-serif;text-align:center;padding:22px;border-radius:var(--r);margin:16px 0}
+.result.valid{background:var(--ok);color:#06210f}.result.used{background:var(--brake)}.result.invalid{background:var(--line);color:#111}
+footer{color:var(--mute);padding:32px 0;font-size:.9rem}
+@media(prefers-reduced-motion:no-preference){.hero h1 span{animation:slide .7s ease-out both}@keyframes slide{from{transform:translateX(-30px);opacity:0}}}

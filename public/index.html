@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/css/style.css"><title>WACKO NIGHT</title></head><body><div class="wrap">
+<header class="top"><b data-bind="name">WACKO NIGHT</b><nav><a href="#tickets">Get tickets</a></nav></header>
+<section class="hero"><h1>WACKO<span>NIGHT</span></h1>
+<div class="facts"><div><small>Date</small><span data-bind="date"></span></div><div><small>Starts</small><span data-bind="startTime"></span></div><div><small>Venue</small><span data-bind="venue"></span></div><div><small>Ticket</small><span data-bind="price"></span></div></div>
+<div class="count" aria-label="Countdown"><div><b id="c-d">00</b><small>days</small></div><div><b id="c-h">00</b><small>hours</small></div><div><b id="c-m">00</b><small>mins</small></div><div><b id="c-s">00</b><small>secs</small></div></div>
+<a class="btn" href="#tickets">Get tickets</a></section>
+<section class="bay" id="tickets"><h2>Get your tickets</h2>
+<form id="buy" class="grid">
+<div class="full"><label for="name">Full name</label><input id="name" name="name" autocomplete="name" required></div>
+<div><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required><span class="hint">Your QR tickets are linked to this email.</span></div>
+<div><label for="phone">Phone number</label><input id="phone" name="phone" type="tel" autocomplete="tel" required></div>
+<div><label for="quantity">Number of tickets</label><input id="quantity" name="quantity" type="number" min="1" value="1" required></div>
+<div class="full total"><span>Total (confirmed at checkout)</span><b id="total">₦0</b></div>
+<div class="full"><div id="msg" class="msg" hidden role="status"></div><button id="pay" class="btn" disabled>Pay with Bach.io</button></div>
+</form></section>
+<footer><p>One QR code admits one person, once. Tickets are checked at the gate. <span hidden>Questions: <a id="contact"></a></span></p></footer>
+</div><script type="module" src="/js/home.js"></script></body></html>

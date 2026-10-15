@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  UNDERPAID
+}
+
+// Single-row event record (id = 1). Everything the admin can change lives here.
+model EventSetting {
+  id           Int      @id @default(1)
+  name         String
+  date         String // YYYY-MM-DD
+  startTime    String? // HH:MM, optional until the organiser sets it
+  venue        String
+  priceNaira   Int // whole naira per ticket
+  totalTickets Int? // null = not configured => sales cannot open
+  maxPerOrder  Int?
+  contactEmail String?
+  salesOpen    Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  reference       String      @unique // unguessable, also sent to Bach as `reference`
+  buyerName       String
+  buyerEmail      String
+  buyerPhone      String
+  quantity        Int
+  unitPrice       Int // naira, snapshot at order time
+  amount          Int // naira, computed on the server
+  status          OrderStatus @default(PENDING)
+  bachsCheckoutId String?     @unique
+  bachsChargeId   String?
+  expiresAt       DateTime
+  createdAt       DateTime    @default(now())
+  paidAt          DateTime?
+  tickets         Ticket[]
+
+  @@index([status, expiresAt])
+}
+
+model Ticket {
+  id        String    @id @default(cuid())
+  code      String    @unique // 128-bit random; this is what the QR encodes
+  orderId   String
+  order     Order     @relation(fields: [orderId], references: [id])
+  createdAt DateTime  @default(now())
+  usedAt    DateTime? // set atomically on first valid scan
+
+  @@index([orderId])
+}
+
+model WebhookEvent {
+  id         String   @id // Bach event id, used to de-duplicate deliveries
+  type       String
+  receivedAt DateTime @default(now())
+}

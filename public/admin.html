@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/css/style.css"><title>Admin · WACKO NIGHT</title><meta name="robots" content="noindex"></head><body><div class="wrap">
+<header class="top"><b>WACKO NIGHT admin</b><nav><a href="/scan.html">Scanner</a> <a href="#" id="logout">Sign out</a></nav></header>
+<div id="msg" class="msg" hidden role="status"></div>
+<form id="login" class="bay" hidden style="max-width:420px"><h2>Admin sign-in</h2><label for="pw">Password</label><input id="pw" name="password" type="password" autocomplete="current-password" required><p><button class="btn">Sign in</button></p></form>
+<div id="panel" hidden>
+<div class="stats"><div><b id="st-sold">—</b>Tickets sold</div><div><b id="st-remaining">—</b>Remaining</div><div><b id="st-checkedIn">—</b>Checked in</div><div><b id="st-revenue">—</b>Paid revenue</div></div>
+<form id="settings" class="bay grid"><h2 class="full">Event settings</h2>
+<div><label for="s1">Event name</label><input id="s1" name="name" required></div><div><label for="s2">Date</label><input id="s2" name="date" type="date" required></div>
+<div><label for="s3">Start time (optional)</label><input id="s3" name="startTime" type="time"></div><div><label for="s4">Ticket price (₦)</label><input id="s4" name="price" type="number" min="0" step="1" required></div>
+<div class="full"><label for="s5">Venue</label><input id="s5" name="venue" required></div>
+<div><label for="s6">Total tickets for sale</label><input id="s6" name="totalTickets" type="number" min="0"><span class="hint">Required before sales can open.</span></div>
+<div><label for="s7">Max tickets per order (optional)</label><input id="s7" name="maxPerOrder" type="number" min="1"></div>
+<div class="full"><label for="s8">Contact email (optional)</label><input id="s8" name="contactEmail" type="email"></div>
+<div class="full"><label><input type="checkbox" name="salesOpen" style="width:auto"> Ticket sales are open</label></div>
+<div class="full"><button class="btn">Save settings</button></div></form></div>
+</div><script type="module" src="/js/admin.js"></script></body></html>

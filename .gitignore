@@ -1,0 +1,18 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Generated files and logs
+npm-debug.log*
+*.log
+
+# Local operating system files
+.DS_Store
+Thumbs.db
+
+# Local deployment settings
+.vercel

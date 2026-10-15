@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/css/style.css"><title>Scanner · WACKO NIGHT</title><meta name="robots" content="noindex"></head><body><div class="wrap scan-box">
+<header class="top"><b>Gate scanner</b><nav><a href="/admin.html">Admin</a></nav></header>
+<video id="cam" playsinline muted hidden></video>
+<p><button id="start" class="btn">Start camera</button></p>
+<div id="result" class="result invalid" role="status" aria-live="assertive">Ready to scan</div>
+<form id="manual"><label for="code">Or type the ticket code</label><input id="code" autocomplete="off" required><p><button class="btn alt">Check ticket</button></p></form>
+</div><script type="module" src="/js/scan.js"></script></body></html>
