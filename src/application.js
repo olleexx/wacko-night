@@ -92,8 +92,8 @@ const publicStatus = (status) =>
       ? 'pending'
       : 'failed';
 
-export function createApp() {
-  const app = express();
+export function createApp(expressFactory = express) {
+  const app = expressFactory();
 
   app.set('trust proxy', config.trustProxy);
 
@@ -549,12 +549,6 @@ export function createApp() {
   return app;
 }
 
-// Vercel can use the default Express app export.
-// Local development can continue using createApp().
-const app = createApp();
-
-export { app };
-export default app;
 
 // Webhooks are the ONLY way an order becomes PAID.
 // Event deduplication and the state change share one transaction.
