@@ -46,6 +46,8 @@ model Order {
   createdAt       DateTime    @default(now())
   paidAt          DateTime?
   emailSentAt     DateTime? // set once the confirmation email is sent
+  source          String      @default("ONLINE") // "ONLINE" | "MANUAL" (issued by admin)
+  note            String? // admin note for manual orders
   tickets         Ticket[]
 
   @@index([status, expiresAt])

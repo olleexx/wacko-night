@@ -12,5 +12,12 @@
 <div><label for="s7">Max tickets per order (optional)</label><input id="s7" name="maxPerOrder" type="number" min="1"></div>
 <div class="full"><label for="s8">Contact email (optional)</label><input id="s8" name="contactEmail" type="email"></div>
 <div class="full"><label><input type="checkbox" name="salesOpen" style="width:auto"> Ticket sales are open</label></div>
-<div class="full"><button class="btn">Save settings</button></div></form></div>
+<div class="full"><button class="btn">Save settings</button></div></form>
+<form id="manual" class="bay grid"><h2 class="full">Issue tickets to people who already paid</h2>
+<div class="full"><label for="m1">One person per line: name, email, quantity, amount paid in total (quantity and amount are optional)</label>
+<textarea id="m1" name="rows" rows="8" required style="width:100%"></textarea>
+<span class="hint">You can paste straight from a spreadsheet. Quantity defaults to 1 and amount defaults to the current ticket price times quantity.</span></div>
+<div class="full"><label for="m2">Note (optional)</label><input id="m2" name="note"></div>
+<div class="full"><label><input type="checkbox" name="sendEmail" checked style="width:auto"> Email the tickets now</label></div>
+<div class="full"><button class="btn">Issue tickets</button></div></form></div>
 </div><script type="module" src="/js/admin.js"></script></body></html>

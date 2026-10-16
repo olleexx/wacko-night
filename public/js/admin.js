@@ -27,3 +27,25 @@ form.addEventListener('submit', async e => {
   finally { setBusy(btn, false); }
 });
 $('#logout').addEventListener('click', async e => { e.preventDefault(); await api('/api/admin/logout', { method: 'POST' }).catch(() => {}); location.reload(); });
+
+const manual = $('#manual');
+manual.addEventListener('submit', async e => {
+  e.preventDefault();
+  const note = manual.elements.note.value.trim();
+  const entries = manual.elements.rows.value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const [name, email, qty, amt] = l.split(/\t|,/).map(s => s.trim());
+    return { name, email, quantity: qty ? Number(qty) : 1, amount: amt ? Number(amt) : undefined, note };
+  });
+  const send = allowDuplicates => api('/api/admin/orders/manual', {
+    method: 'POST', body: { entries, sendEmail: manual.elements.sendEmail.checked, allowDuplicates }
+  });
+  const btn = manual.querySelector('button'); setBusy(btn, true);
+  try {
+    let r;
+    try { r = await send(false); }
+    catch (err) { if (err.status === 409 && confirm(err.message + '\n\nIssue anyway?')) r = await send(true); else throw err; }
+    show(msg, `Issued ${r.tickets} ticket(s) to ${r.created} order(s).` + (r.emailsPending ? ` ${r.emailsPending} email(s) not sent yet and will be retried.` : ''), 'ok');
+    manual.reset(); await open();
+  } catch (err) { show(msg, err.message); }
+  finally { setBusy(btn, false); }
+});

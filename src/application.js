@@ -540,6 +540,139 @@ export function createApp(expressFactory = express) {
     }),
   );
 
+  // Admin: issue tickets for people who paid before the site existed.
+  app.post(
+    '/api/admin/orders/manual',
+    requireAdmin,
+    requireJson,
+    ah(async (req, res) => {
+      const entries = Array.isArray(req.body?.entries) ? req.body.entries : [];
+
+      if (entries.length < 1 || entries.length > 50) {
+        throw new HttpError(400, 'Send between 1 and 50 people at a time.');
+      }
+
+      const settings = await getSettings(prisma);
+
+      const rows = entries.map((e, i) => {
+        const line = `Line ${i + 1}`;
+        const name = String(e?.name ?? '').trim().slice(0, 120);
+        const email = String(e?.email ?? '').trim().toLowerCase();
+        const quantity = Number(e?.quantity ?? 1);
+
+        if (!name) throw new HttpError(400, `${line}: name is required.`);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          throw new HttpError(400, `${line}: invalid email.`);
+        }
+        if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+          throw new HttpError(400, `${line}: quantity must be 1 to 20.`);
+        }
+
+        // Total naira this person actually paid; defaults to current price x quantity.
+        const amount =
+          e?.amount == null ? settings.priceNaira * quantity : Number(e.amount);
+        if (!Number.isInteger(amount) || amount < 0) {
+          throw new HttpError(
+            400,
+            `${line}: amount must be a whole number of naira.`,
+          );
+        }
+
+        return {
+          name,
+          email,
+          quantity,
+          amount,
+          note: String(e?.note ?? '').trim().slice(0, 200) || null,
+        };
+      });
+
+      // Guard against clicking twice and issuing the same person's tickets again.
+      const existing = await prisma.order.findMany({
+        where: {
+          source: 'MANUAL',
+          buyerEmail: { in: rows.map((r) => r.email) },
+        },
+        select: { buyerEmail: true },
+      });
+
+      if (existing.length && !req.body?.allowDuplicates) {
+        const list = [...new Set(existing.map((o) => o.buyerEmail))].join(', ');
+        throw new HttpError(409, `Tickets were already issued to: ${list}.`);
+      }
+
+      const now = new Date();
+
+      const created = await prisma.$transaction(
+        async (tx) => {
+          // Same lock the checkout uses, so we can't race a live purchase.
+          await getSettings(tx);
+
+          await tx.$queryRaw`
+            SELECT id
+            FROM "EventSetting"
+            WHERE id = 1
+            FOR UPDATE
+          `;
+
+          const out = [];
+
+          for (const r of rows) {
+            out.push(
+              await tx.order.create({
+                data: {
+                  reference: newReference(),
+                  buyerName: r.name,
+                  buyerEmail: r.email,
+                  buyerPhone: '',
+                  quantity: r.quantity,
+                  unitPrice: Math.round(r.amount / r.quantity),
+                  amount: r.amount,
+                  status: 'PAID',
+                  paidAt: now,
+                  expiresAt: now,
+                  source: 'MANUAL',
+                  note: r.note,
+                  tickets: {
+                    create: Array.from({ length: r.quantity }, () => ({
+                      code: newTicketCode(),
+                    })),
+                  },
+                },
+                select: { id: true },
+              }),
+            );
+          }
+
+          return out;
+        },
+        { timeout: 15_000 },
+      );
+
+      // Email after commit. deliverTicketEmail never throws; anything that
+      // fails stays unsent and is picked up by retryPendingEmails.
+      if (req.body?.sendEmail !== false) {
+        for (const o of created) {
+          await deliverTicketEmail(o.id);
+        }
+      }
+
+      const emailsPending = await prisma.order.count({
+        where: {
+          id: { in: created.map((o) => o.id) },
+          emailSentAt: null,
+        },
+      });
+
+      res.json({
+        ok: true,
+        created: created.length,
+        tickets: rows.reduce((n, r) => n + r.quantity, 0),
+        emailsPending,
+      });
+    }),
+  );
+
   // Gate scanner: a paid ticket can only be checked in once.
   app.post(
     '/api/scan',
