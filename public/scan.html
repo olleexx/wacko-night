@@ -2,6 +2,7 @@
 <header class="top"><b>Gate scanner</b><nav><a href="/admin.html">Admin</a></nav></header>
 <video id="cam" playsinline muted hidden></video>
 <p><button id="start" class="btn">Start camera</button></p>
+<p id="hint" class="hint" role="status"></p>
 <div id="result" class="result invalid" role="status" aria-live="assertive">Ready to scan</div>
 <form id="manual"><label for="code">Or type the ticket code</label><input id="code" autocomplete="off" required><p><button class="btn alt">Check ticket</button></p></form>
-</div><script type="module" src="/js/scan.js"></script></body></html>
+</div><script src="/js/vendor/jsQR.js"></script><script type="module" src="/js/scan.js"></script></body></html>
