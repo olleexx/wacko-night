@@ -47,3 +47,9 @@ test('ticket codes are unique and unguessable length', () => {
   const codes = new Set(Array.from({ length: 1000 }, newTicketCode));
   assert.equal(codes.size, 1000); assert.ok([...codes][0].length >= 22); assert.match(newReference(), /^WN-[\w-]{12}$/);
 });
+import { buildTicketEmail } from '../src/lib/email.js';
+test('ticket email links to the order and escapes HTML', () => {
+  const m = buildTicketEmail({ order: { reference: 'WN-abc_1', buyerName: '<b>Ada</b>', quantity: 2 }, event: { name: 'WACKO NIGHT', date: '2026-11-07', startTime: null, venue: 'Reeplay Car Park' }, appUrl: 'https://x.example' });
+  assert.ok(m.text.includes('https://x.example/ticket.html?ref=WN-abc_1')); assert.ok(m.html.includes('&lt;b&gt;Ada'));
+  assert.ok(!m.html.includes('<b>Ada')); assert.match(m.subject, /tickets$/);
+});

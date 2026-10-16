@@ -1,8 +1,8 @@
-
 import express from 'express';
 import { config } from './config.js';
 import { createApp } from './application.js';
 import { prisma } from './db.js';
+import { retryPendingEmails, mailConfigured } from './notify.js';
 
 const app = createApp(express);
 
@@ -23,6 +23,18 @@ if (process.env.VERCEL !== '1') {
       'BACHS_WEBHOOK_SECRET not set: payments cannot be confirmed until you add it.'
     );
   }
+
+  if (!mailConfigured()) {
+    console.warn(
+      'SMTP_HOST/SMTP_FROM not set: confirmation emails are disabled (buyers can still use their ticket link).'
+    );
+  }
+
+  // Local/VPS only. On Vercel, /api/cron/send-emails does this job.
+  setInterval(
+    () => retryPendingEmails().catch(console.error),
+    5 * 60_000
+  ).unref();
 
   const server = app.listen(config.port, () => {
     console.log(`WACKO NIGHT listening on :${config.port}`);

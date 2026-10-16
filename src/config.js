@@ -7,6 +7,8 @@ export const config = {
   isProd: process.env.NODE_ENV === 'production',
   sessionSecret: need('SESSION_SECRET'),
   adminPassword: need('ADMIN_PASSWORD'),
+  cronSecret: process.env.CRON_SECRET || '',
+  smtp: { host: process.env.SMTP_HOST || '', port: Number(process.env.SMTP_PORT || 587), user: process.env.SMTP_USER || '', pass: process.env.SMTP_PASS || '', from: process.env.SMTP_FROM || '' },
   bachs: { apiKey: process.env.BACHS_API_KEY || '', webhookSecret: process.env.BACHS_WEBHOOK_SECRET || '' },
   // Used ONLY to create the first event record. After that the admin dashboard is the source of truth.
   eventDefaults: {

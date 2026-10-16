@@ -1,7 +1,8 @@
 import { api, $, show } from './api.js';
 const q = new URLSearchParams(location.search), ref = q.get('ref') || q.get('checkout_id'); // Bachs appends ?checkout_id= on return
 const msg = $('#msg'), list = $('#tickets');
-if (!ref) show(msg, 'No order reference found. Use the link from your confirmation email.', 'err');
+const rf = $('#resend');
+if (!ref) { show(msg, 'Open the link from your confirmation email, or have it sent again below.', 'warn'); rf.hidden = false; }
 else poll(0);
 async function poll(n) {
   try {
@@ -21,3 +22,8 @@ async function poll(n) {
     else show(msg, 'Payment is still pending. If you were charged, your tickets will appear here once confirmed. Keep this page link.', 'warn');
   } catch (e) { show(msg, e.message); }
 }
+rf.addEventListener('submit', async e => {
+  e.preventDefault();
+  try { await api('/api/orders/resend', { method: 'POST', body: { email: rf.elements.email.value } }); show(msg, 'If that email has paid orders, we have sent the ticket link. Check your inbox and spam folder.', 'ok'); rf.reset(); }
+  catch (err) { show(msg, err.message); }
+});

@@ -45,6 +45,7 @@ model Order {
   expiresAt       DateTime
   createdAt       DateTime    @default(now())
   paidAt          DateTime?
+  emailSentAt     DateTime? // set once the confirmation email is sent
   tickets         Ticket[]
 
   @@index([status, expiresAt])

@@ -18,6 +18,8 @@ import { verifyBachsSignature } from './lib/signature.js';
 import { parseCheckout, parseSettings } from './lib/validate.js';
 import { newTicketCode, newReference } from './lib/codes.js';
 import { toKobo } from './lib/money.js';
+import { createHash, timingSafeEqual } from 'node:crypto';
+import { deliverTicketEmail, retryPendingEmails } from './notify.js';
 
 const currentFile = fileURLToPath(import.meta.url);
 const currentDirectory = path.dirname(currentFile);
@@ -156,8 +158,14 @@ export function createApp(expressFactory = express) {
         });
       }
 
-      if (event?.id && event?.type) {
-        await handleEvent(event);
+      const paidOrderId =
+        event?.id && event?.type ? await handleEvent(event) : null;
+
+      // Serverless hosts (Vercel) may stop work once the response is sent,
+      // so the email goes out BEFORE replying. It never throws; anything
+      // that fails is retried by /api/cron/send-emails.
+      if (paidOrderId) {
+        await deliverTicketEmail(paidOrderId);
       }
 
       return res.json({ ok: true });
@@ -291,6 +299,58 @@ export function createApp(expressFactory = express) {
           'Could not start payment. Please try again.',
         );
       }
+    }),
+  );
+
+  // Buyer self-service: email the ticket link(s) again.
+  // Same reply whether or not the email has paid orders (no enumeration).
+  app.post(
+    '/api/orders/resend',
+    limiter(15 * 60_000, 5),
+    requireJson,
+    ah(async (req, res) => {
+      const email = String(req.body?.email ?? '')
+        .trim()
+        .toLowerCase();
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new HttpError(400, 'Enter a valid email address.');
+      }
+
+      const orders = await prisma.order.findMany({
+        where: { buyerEmail: email, status: 'PAID' },
+        orderBy: { paidAt: 'desc' },
+        take: 5,
+        select: { id: true },
+      });
+
+      for (const order of orders) {
+        await deliverTicketEmail(order.id, { force: true });
+      }
+
+      return res.json({ ok: true });
+    }),
+  );
+
+  // Retries confirmation emails that failed. Vercel Cron calls this with
+  // "Authorization: Bearer <CRON_SECRET>".
+  app.get(
+    '/api/cron/send-emails',
+    ah(async (req, res) => {
+      const sha = (value) => createHash('sha256').update(String(value)).digest();
+      const authorised =
+        config.cronSecret &&
+        timingSafeEqual(
+          sha(req.headers.authorization ?? ''),
+          sha(`Bearer ${config.cronSecret}`),
+        );
+
+      if (!authorised) {
+        return res.status(401).json({ error: 'Unauthorized.' });
+      }
+
+      await retryPendingEmails();
+      return res.json({ ok: true });
     }),
   );
 
@@ -553,6 +613,8 @@ export function createApp(expressFactory = express) {
 // Webhooks are the ONLY way an order becomes PAID.
 // Event deduplication and the state change share one transaction.
 async function handleEvent(event) {
+  let fulfilledOrderId = null;
+
   await prisma.$transaction(async (tx) => {
     const fresh = await tx.webhookEvent.createMany({
       data: [
@@ -634,6 +696,8 @@ async function handleEvent(event) {
           }),
         ),
       });
+
+      fulfilledOrderId = order.id;
     } else if (
       event.type === 'collection.underpaid' &&
       order.status === 'PENDING'
@@ -652,4 +716,5 @@ async function handleEvent(event) {
       });
     }
   });
+  return fulfilledOrderId;
 }
