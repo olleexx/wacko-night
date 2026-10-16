@@ -37,3 +37,35 @@ input:focus{border-color:var(--line)}.full{grid-column:1/-1}.hint{color:var(--mu
 .result.valid{background:var(--ok);color:#06210f}.result.used{background:var(--brake)}.result.invalid{background:var(--line);color:#111}
 footer{color:var(--mute);padding:32px 0;font-size:.9rem}
 @media(prefers-reduced-motion:no-preference){.hero h1 span{animation:slide .7s ease-out both}@keyframes slide{from{transform:translateX(-30px);opacity:0}}}
+
+/* ---- Flyer backdrop (index page only: <body class="flyer">) ---- */
+html{background:#140a24}
+body.flyer{background:transparent;isolation:isolate;--tar:rgba(18,8,34,.72);--asphalt:rgba(8,3,18,.55);--mute:#cdbbea;--line:#ffd166}
+body.flyer::before,body.flyer::after{content:"";position:fixed;inset:0;pointer-events:none}
+/* Layer 1: the flyer as a soft, tinted backdrop. Darker at the top (hides the flyer's own logo) and bottom (text legibility). */
+body.flyer::before{z-index:-2;transform:scale(1.06);filter:blur(2px) saturate(1.15);
+  background:linear-gradient(180deg,rgba(20,8,36,.8) 0%,rgba(20,8,36,.5) 30%,rgba(20,8,36,.4) 52%,rgba(14,6,26,.88) 78%,rgba(14,6,26,.95) 100%),url(/img/wacko-flyer.jpg) 50% 30%/cover no-repeat}
+@media(min-width:900px){
+  /* Wide screens: blurred ambient backdrop + the flyer shown sharp on the right, fading into the page */
+  body.flyer::before{filter:blur(10px) saturate(1.15);
+    background:linear-gradient(90deg,rgba(20,8,36,.88) 0%,rgba(20,8,36,.6) 50%,rgba(20,8,36,.4) 100%),linear-gradient(180deg,transparent 55%,rgba(14,6,26,.92) 100%),url(/img/wacko-flyer.jpg) 50% 25%/cover no-repeat}
+  body.flyer::after{z-index:-1;inset:0 3% 0 auto;width:80vh;background:url(/img/wacko-flyer.jpg) center/cover no-repeat;opacity:.95;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 42%);mask-image:linear-gradient(90deg,transparent 0,#000 42%)}
+  body.flyer .hero h1{font-size:clamp(5rem,12vw,9.5rem)}
+}
+body.flyer header.top b{text-shadow:0 2px 12px rgba(0,0,0,.6)}
+body.flyer .hero{border-color:var(--line);text-shadow:0 4px 30px rgba(0,0,0,.6)}
+body.flyer .hero h1{color:#fff7e6}
+body.flyer .hero h1 span{background:linear-gradient(180deg,#ffe08a,#f2a900);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 4px 18px rgba(255,190,40,.35))}
+body.flyer .count div{background:rgba(18,8,34,.6);border-color:rgba(255,255,255,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+body.flyer .bay{border-color:rgba(255,255,255,.55);box-shadow:0 20px 60px rgba(0,0,0,.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+body.flyer input{border-color:rgba(255,255,255,.28)}body.flyer input:focus{border-color:var(--line)}
+body.flyer .btn{background:linear-gradient(180deg,#ffe08a,#f2b01e);box-shadow:0 8px 24px rgba(242,176,30,.35)}
+body.flyer .btn:disabled{background:rgba(255,255,255,.18);color:#d9cdee;box-shadow:none}
+body.flyer .msg{background:rgba(18,8,34,.85)}
+body.flyer footer{color:#d8c9f0}
+
+/* ---- Calmer variant for ticket, admin and scanner pages: blurred flyer only, no sharp poster, stronger tint ---- */
+body.flyer.flyer-soft::after{display:none}
+body.flyer.flyer-soft::before{filter:blur(8px) saturate(1.1);background:linear-gradient(180deg,rgba(20,8,36,.8) 0%,rgba(14,6,26,.94) 100%),url(/img/wacko-flyer.jpg) 50% 30%/cover no-repeat}
+body.flyer-soft h2{text-shadow:0 2px 16px rgba(0,0,0,.5)}
