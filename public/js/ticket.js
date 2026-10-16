@@ -1,4 +1,4 @@
-import { api, $, show } from './api.js';
+import { api, $, show, setBusy } from './api.js';
 const q = new URLSearchParams(location.search), ref = q.get('ref') || q.get('checkout_id'); // Bachs appends ?checkout_id= on return
 const msg = $('#msg'), list = $('#tickets');
 const rf = $('#resend');
@@ -18,12 +18,14 @@ async function poll(n) {
         b.append(h, p, c); d.append(img, b); return d;
       }));
     } else if (o.status === 'failed') show(msg, 'Payment failed or was cancelled. Return to the homepage to try again.', 'err');
-    else if (n < 30) { show(msg, 'Confirming your payment with Bach.io…', 'warn'); setTimeout(() => poll(n + 1), 4000); }
+    else if (n < 30) { show(msg, 'Confirming your payment with Bach.io…', 'warn'); msg.classList.add('spin'); setTimeout(() => poll(n + 1), 4000); }
     else show(msg, 'Payment is still pending. If you were charged, your tickets will appear here once confirmed. Keep this page link.', 'warn');
   } catch (e) { show(msg, e.message); }
 }
 rf.addEventListener('submit', async e => {
   e.preventDefault();
+  const btn = rf.querySelector('button'); setBusy(btn, true);
   try { await api('/api/orders/resend', { method: 'POST', body: { email: rf.elements.email.value } }); show(msg, 'If that email has paid orders, we have sent the ticket link. Check your inbox and spam folder.', 'ok'); rf.reset(); }
   catch (err) { show(msg, err.message); }
+  finally { setBusy(btn, false); }
 });

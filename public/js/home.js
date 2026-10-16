@@ -1,4 +1,4 @@
-import { loadEvent, api, naira, longDate, $, show } from './api.js';
+import { loadEvent, api, naira, longDate, $, show, setBusy } from './api.js';
 const ev = await loadEvent();
 document.title = `${ev.name} · Tickets`;
 document.querySelectorAll('[data-bind]').forEach(el => {
@@ -28,7 +28,7 @@ $('#pay').disabled = !canSell;
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  const btn = $('#pay'); btn.disabled = true; show(msg, '');
+  const btn = $('#pay'); setBusy(btn, true); show(msg, '');
   try {
     const f = new FormData(form);
     // Only buyer details + quantity are sent. The server sets the price and amount.
@@ -36,5 +36,5 @@ form.addEventListener('submit', async e => {
     if (!r.paymentUrl) throw new Error('Payment link was not returned. Please try again.');
     show(msg, 'Redirecting to Bach.io to complete payment…', 'ok');
     location.href = r.paymentUrl;
-  } catch (err) { show(msg, err.message); btn.disabled = false; }
+  } catch (err) { show(msg, err.message); setBusy(btn, false); } // on success the spinner stays until the redirect happens
 });

@@ -69,3 +69,12 @@ body.flyer footer{color:#d8c9f0}
 body.flyer.flyer-soft::after{display:none}
 body.flyer.flyer-soft::before{filter:blur(8px) saturate(1.1);background:linear-gradient(180deg,rgba(20,8,36,.8) 0%,rgba(14,6,26,.94) 100%),url(/img/wacko-flyer.jpg) 50% 30%/cover no-repeat}
 body.flyer-soft h2{text-shadow:0 2px 16px rgba(0,0,0,.5)}
+
+/* ---- Loading spinners ---- */
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.loading,.btn.loading:disabled{cursor:progress;background:var(--line);color:#111}
+.btn.loading::before,.msg.spin::before{content:"";display:inline-block;width:1em;height:1em;margin-right:.6em;vertical-align:-.15em;border:.18em solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+body.flyer .btn.loading,body.flyer .btn.loading:disabled{background:linear-gradient(180deg,#ffe08a,#f2b01e);color:#111;box-shadow:0 8px 24px rgba(242,176,30,.35)}
+.btn.alt.loading,.btn.alt.loading:disabled,body.flyer .btn.alt.loading{background:transparent;color:var(--paint);box-shadow:none}
+.result.checking{background:#3b3470;color:#fff}
+@media(prefers-reduced-motion:reduce){.btn.loading::before,.msg.spin::before{animation-duration:2s}}

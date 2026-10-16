@@ -1,10 +1,11 @@
-import { api, $ } from './api.js';
+import { api, $, setBusy } from './api.js';
 const out = $('#result'), video = $('#cam'), hint = $('#hint'), startBtn = $('#start'), recent = new Map();
 const LABEL = { valid: ['Admit', 'valid'], already_used: ['Already used', 'used'], invalid: ['Invalid ticket', 'invalid'] };
 
 async function check(code) {
   code = code.trim(); if (!code || Date.now() - (recent.get(code) || 0) < 3000) return;
   recent.set(code, Date.now());
+  out.className = 'result checking'; out.textContent = 'Checking…';
   try {
     const r = await api('/api/scan', { method: 'POST', body: { code } });
     const [t, c] = LABEL[r.status] || LABEL.invalid;
@@ -12,7 +13,11 @@ async function check(code) {
     if (r.detail) { const s = document.createElement('div'); s.style.cssText = 'font:500 1rem "DM Sans",sans-serif'; s.textContent = r.detail; out.append(s); }
   } catch (e) { out.className = 'result invalid'; out.textContent = e.status === 401 ? 'Staff sign-in required' : e.message; }
 }
-$('#manual').addEventListener('submit', e => { e.preventDefault(); check($('#code').value); e.target.reset(); });
+$('#manual').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button'), code = $('#code').value; e.target.reset();
+  setBusy(btn, true); await check(code); setBusy(btn, false);
+});
 
 // Pick a decoder: the browser's native QR detector if it really supports QR (Chrome/Android),
 // otherwise jsQR (works on iPhone Safari, Firefox, desktop). Returns async (video) => string | null.
@@ -42,20 +47,20 @@ async function makeDecoder() {
 let stream = null, running = false;
 function stopCamera() {
   running = false; stream?.getTracks().forEach(t => t.stop()); stream = null;
-  video.hidden = true; startBtn.disabled = false; startBtn.textContent = 'Start camera';
+  video.hidden = true; setBusy(startBtn, false); startBtn.textContent = 'Start camera';
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopCamera(); });
 
 startBtn.addEventListener('click', async () => {
   if (running) return stopCamera();
-  hint.textContent = '';
+  hint.textContent = ''; setBusy(startBtn, true);
   const decode = await makeDecoder();
-  if (!decode) { hint.textContent = 'Camera scanning is not available in this browser. Type the ticket code below instead.'; return; }
+  if (!decode) { hint.textContent = 'Camera scanning is not available in this browser. Type the ticket code below instead.'; setBusy(startBtn, false); return; }
   try {
     // Must start from this tap: iPhone Safari only allows camera + playback after a user gesture.
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
     video.srcObject = stream; video.setAttribute('playsinline', ''); video.muted = true;
-    await video.play(); video.hidden = false; running = true; startBtn.textContent = 'Stop camera';
+    await video.play(); video.hidden = false; running = true; setBusy(startBtn, false); startBtn.textContent = 'Stop camera';
     (async function loop() {
       while (running) {
         const code = await decode(video).catch(() => null);

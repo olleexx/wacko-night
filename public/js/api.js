@@ -21,5 +21,11 @@ export async function loadEvent() {
 }
 export const naira = n => new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(n);
 export const longDate = d => new Date(d + 'T12:00:00+01:00').toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+// Shows a spinner on a button while work is in progress and blocks double clicks.
+export function setBusy(btn, on) {
+  if (!btn) return;
+  btn.classList.toggle('loading', on); btn.disabled = on;
+  on ? btn.setAttribute('aria-busy', 'true') : btn.removeAttribute('aria-busy');
+}
 export const $ = (s, r = document) => r.querySelector(s);
 export function show(el, text, kind = 'err') { el.hidden = !text; el.className = 'msg ' + kind; el.textContent = text || ''; }
